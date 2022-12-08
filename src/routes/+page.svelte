@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getAccessToken, resetLocalStorage, setAccessToken } from '$lib/persistence';
+	import Playlists from '$lib/playlists.svelte';
 	import { auth, getAPI, getMe } from '$lib/spotifyAuthURL';
 
 	let userName = '';
@@ -19,6 +20,11 @@
 				.filter(([key, _]) => {
 					return key === 'access_token';
 				});
+			let url = window.location.href;
+			url = url.split('#')[0];
+			console.log(url);
+			// Use the replaceState method to modify the current URL
+			window.history.replaceState({}, '', url);
 			if (afterHashtagParams.length) {
 				const [_, accessToken] = afterHashtagParams[0];
 				setAccessToken(accessToken);
@@ -29,15 +35,14 @@
 
 	onMount(async () => {
 		loaded = true;
-		let access_token = getAccessToken() || check_params();
-		if (access_token) {
+		check_params();
+		let api = getAPI();
+		if (api) {
 			token = true;
-			const api = getAPI(access_token);
 			try {
 				const me = await getMe(api);
 				userName = me.body['id'];
 			} catch (e) {
-				// must be logged out...
 				resetLocalStorage();
 			}
 		}
@@ -51,6 +56,9 @@
 		{:else}
 			<p>Logged in to Spotify as ...</p>
 		{/if}
+
+		<Playlists />
+		<a href="/logout">Logout</a>
 	{:else}
 		<a href={auth()}>Login</a>
 	{/if}
