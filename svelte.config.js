@@ -7,9 +7,12 @@ const config = {
 	// for more information about preprocessors
 	preprocess: [preprocess({ postcss: true, }),],
 	kit: {
-		adapter: adapter()
+		adapter: adapter(),
+	},
+	files: {
+		lib: 'src/lib'
 	}
 
-};
+}
 
 export default config;
