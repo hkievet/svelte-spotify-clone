@@ -3,13 +3,14 @@ import SpotifyWebApi from 'spotify-web-api-node';
 // @ts-ignore
 import SpotifyWebApiServer from 'spotify-web-api-node/src/server-methods';
 import { getAccessToken } from './persistence';
+import type { Track, TrackFeatures } from './types';
 
 (SpotifyWebApi as unknown as { _addMethods: (fncs: unknown) => void })._addMethods(
 	SpotifyWebApiServer
 );
 
 export function auth() {
-	const scopes = ['user-read-private', 'user-read-email'];
+	const scopes = ['user-read-private', 'user-read-email', 'user-modify-playback-state'];
 	const redirectUri = 'http://localhost:5173/';
 	const clientId = '3e64e205a53b46ea9735eb446a9c97f6';
 	const state = 'some-state-of-my-choice';
@@ -44,15 +45,20 @@ export function getAPI(): SpotifyWebApi | null {
 	return null;
 }
 
+export function getAPIOrFail(): SpotifyWebApi {
+	const api = getAPI();
+	if (!api) {
+		throw new Error('Should have api auth');
+	}
+	return api;
+}
+
 export async function getMe(spotifyApi: SpotifyWebApi) {
 	return spotifyApi.getMe();
 }
 
 export async function getPlaylists() {
-	const api = getAPI();
-	if (!api) {
-		throw new Error('Should have api auth');
-	}
+	const api = getAPIOrFail();
 	const paginate = async (offset = 0, playlists: any[] = []): Promise<any[]> => {
 		console.log(offset);
 		const data = await api.getUserPlaylists({ limit: 20, offset: offset });
@@ -63,4 +69,37 @@ export async function getPlaylists() {
 		return playlists;
 	};
 	return paginate();
+}
+
+export async function getPlaylistTracks(id: string | null): Promise<Track[]> {
+	if (id === null) {
+		return [];
+	}
+	const api = getAPIOrFail();
+	const paginate = async (offset = 0, songs: any[] = []): Promise<any[]> => {
+		const data = await api.getPlaylistTracks(id, { limit: 20, offset: offset });
+		songs.push(...data.body['items']);
+		if (offset + 20 < data.body['total']) {
+			return paginate(offset + 20, songs);
+		}
+		return songs;
+	};
+	return paginate();
+}
+
+export async function getTrackFeatures(trackId: string | null): Promise<TrackFeatures | null> {
+	if (!trackId) {
+		return null;
+	}
+	const api = getAPIOrFail();
+	return ((await api.getAudioFeaturesForTrack(trackId)) as any).body;
+}
+
+export async function playSong(id: string) {
+	const api = getAPI();
+	if (!api) {
+		throw new Error('Should have api auth');
+	}
+
+	api.play({ uris: [id] });
 }

@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { getAccessToken, resetLocalStorage, setAccessToken } from '$lib/persistence';
 	import Playlists from '$lib/playlists.svelte';
+	import Songs from '$lib/songs.svelte';
 	import { auth, getAPI, getMe } from '$lib/spotifyAuthURL';
+	import { getStore } from '$lib/spotifyStore';
+	import TrackInfo from '$lib/trackInfo.svelte';
 
 	let userName = '';
 	let token = false;
@@ -34,6 +37,7 @@
 	}
 
 	onMount(async () => {
+		getStore();
 		loaded = true;
 		check_params();
 		let api = getAPI();
@@ -52,13 +56,18 @@
 {#if loaded}
 	{#if token}
 		{#if userName}
-			<p>Logged in to Spotify as {userName}</p>
+			<div class="flex flex-row gap-x-2">
+				<Playlists />
+				<Songs />
+				<div>
+					<p>Logged in to Spotify as {userName}</p>
+					<a href="/logout">Logout</a>
+					<TrackInfo />
+				</div>
+			</div>
 		{:else}
 			<p>Logged in to Spotify as ...</p>
 		{/if}
-
-		<Playlists />
-		<a href="/logout">Logout</a>
 	{:else}
 		<a href={auth()}>Login</a>
 	{/if}
