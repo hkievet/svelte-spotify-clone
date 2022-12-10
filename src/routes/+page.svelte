@@ -3,7 +3,7 @@
 	import Playlists from '$lib/playlists.svelte';
 	import Songs from '$lib/songs.svelte';
 	import { auth, getAPI, getMe } from '$lib/spotifyAuthURL';
-	import { getStore } from '$lib/spotifyStore';
+	import spotifyStore, { getStore } from '$lib/spotifyStore';
 	import TrackInfo from '$lib/trackInfo.svelte';
 
 	let userName = '';
@@ -46,6 +46,7 @@
 			try {
 				const me = await getMe(api);
 				userName = me.body['id'];
+				spotifyStore.update((s) => ({ ...s, username: userName }));
 			} catch (e) {
 				resetLocalStorage();
 			}
@@ -60,8 +61,6 @@
 				<Playlists />
 				<Songs />
 				<div>
-					<p>Logged in to Spotify as {userName}</p>
-					<a href="/logout">Logout</a>
 					<TrackInfo />
 				</div>
 			</div>

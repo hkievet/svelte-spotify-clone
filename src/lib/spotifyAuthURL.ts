@@ -82,8 +82,17 @@ export async function getPlaylistTracks(id: string | null): Promise<Track[]> {
 		if (offset + 20 < data.body['total']) {
 			return paginate(offset + 20, songs);
 		}
+
+		// Stitch together the audio features onto each track.
+		const trackIds = songs.map((t) => t.track.id);
+		const features = await api.getAudioFeaturesForTracks(trackIds);
+		songs.map((t, i) => {
+			t.features = features.body['audio_features'][i];
+		});
+
 		return songs;
 	};
+
 	return paginate();
 }
 
@@ -95,7 +104,10 @@ export async function getTrackFeatures(trackId: string | null): Promise<TrackFea
 	return ((await api.getAudioFeaturesForTrack(trackId)) as any).body;
 }
 
-export async function playSong(id: string) {
+export async function playSong(id: string | null) {
+	if (!id) {
+		return;
+	}
 	const api = getAPI();
 	if (!api) {
 		throw new Error('Should have api auth');

@@ -1,9 +1,9 @@
-import { onMount } from 'svelte';
 import { writable } from 'svelte/store';
 import { getPlaylistTracks, getTrackFeatures } from './spotifyAuthURL';
 import type { Playlist, Track, TrackFeatures } from './types';
 
 interface SpotifyStore {
+	username: string | null;
 	playlists: Playlist[];
 	selectedPlaylistId: string | null;
 	playlistTracks: Track[];
@@ -12,6 +12,7 @@ interface SpotifyStore {
 }
 
 const store = writable<SpotifyStore>({
+	username: null,
 	playlists: [],
 	selectedPlaylistId: null,
 	playlistTracks: [],

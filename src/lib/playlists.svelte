@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import { getPlaylists } from './spotifyAuthURL';
 	import spotifyStore from '$lib/spotifyStore';
+	import AccountBadge from './accountBadge.svelte';
 
 	let playlists: any[] = [];
 
@@ -12,6 +13,7 @@
 </script>
 
 <div class="max-w-sm w-full overflow-y-scroll h-screen max-h-screen">
+	<AccountBadge />
 	{#if $spotifyStore.playlists}
 		{#each $spotifyStore.playlists as playlist}
 			<button

@@ -47,4 +47,5 @@ export interface _Track {
 
 export interface Track {
 	track: _Track;
+	features: TrackFeatures;
 }
