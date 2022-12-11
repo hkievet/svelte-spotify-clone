@@ -16,7 +16,8 @@ export function auth() {
 		'user-read-private',
 		'user-read-email',
 		'user-modify-playback-state',
-		'user-read-playback-state'
+		'user-read-playback-state',
+		'user-modify-playback-state'
 	];
 	const redirectUri = 'http://localhost:5173/';
 	const clientId = '3e64e205a53b46ea9735eb446a9c97f6';

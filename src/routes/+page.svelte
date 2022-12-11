@@ -60,9 +60,9 @@
 			<div class="flex flex-row gap-x-2">
 				<Playlists />
 				<Songs />
-				<div>
-					<TrackInfo />
+				<div class="max-w-lg w-full">
 					<PlayBar />
+					<TrackInfo />
 				</div>
 			</div>
 		{:else}

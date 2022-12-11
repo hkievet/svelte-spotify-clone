@@ -79,15 +79,20 @@ async function updateTrackFeatures(id: string | null) {
 export default store;
 
 function writeStore(data: any) {
-	if (typeof localStorage !== 'undefined' && loocalStorageSyncedAtStart) {
-		localStorage.setItem('spotifyStore', JSON.stringify(data));
+	if (typeof sessionStorage !== 'undefined' && loocalStorageSyncedAtStart) {
+		try {
+			sessionStorage.setItem('spotifyStore', JSON.stringify(data));
+			// todo, manage when things were viewed, reduce the size of the data being saved (there are lots of data for each track/playlist and we only need a little bit of it.)
+		} catch (e) {
+			console.info('session storage failed to write...');
+		}
 	}
 }
 
 export function getStore() {
-	if (typeof localStorage !== 'undefined') {
+	if (typeof sessionStorage !== 'undefined') {
 		loocalStorageSyncedAtStart = true;
-		const savedStore = localStorage.getItem('spotifyStore');
+		const savedStore = sessionStorage.getItem('spotifyStore');
 		if (savedStore !== null) {
 			store.update((store) => ({ ...store, ...JSON.parse(savedStore as any) }));
 		}
