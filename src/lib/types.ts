@@ -22,6 +22,7 @@ export interface TrackFeatures {
 export interface Playlist {
 	name: string;
 	id: string;
+	cached_tracks: Track[] | null;
 }
 
 export interface Album {
@@ -48,4 +49,14 @@ export interface _Track {
 export interface Track {
 	track: _Track;
 	features: TrackFeatures;
+}
+
+export interface FeatureCollection {
+	acousticness: number;
+	danceability: number;
+	energy: number;
+	liveness: number;
+	valence: number;
+	instrumentalness: number;
+	speechiness: number;
 }

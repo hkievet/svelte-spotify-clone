@@ -1,5 +1,5 @@
 import { writable } from 'svelte/store';
-import { getPlaylistTracks, getTrackFeatures } from './spotifyAuthURL';
+import { getPlaylistTracks, getTrackFeatures } from './spotifyAPI';
 import type { Playlist, Track, TrackFeatures } from './types';
 
 interface SpotifyStore {
@@ -9,6 +9,7 @@ interface SpotifyStore {
 	playlistTracks: Track[];
 	selectedTrackId: string | null;
 	trackFeatures: TrackFeatures | null;
+	playlist2tracks: { [key: string]: Track[] };
 }
 
 const store = writable<SpotifyStore>({
@@ -17,7 +18,8 @@ const store = writable<SpotifyStore>({
 	selectedPlaylistId: null,
 	playlistTracks: [],
 	selectedTrackId: null,
-	trackFeatures: null
+	trackFeatures: null,
+	playlist2tracks: {}
 });
 
 let prevSelectedPlaylistId: string | null;
@@ -30,16 +32,23 @@ store.subscribe((store) => console.log(store));
 // writes store to local storage for quick reloads
 store.subscribe((store) => writeStore(store));
 
-store.subscribe(({ selectedPlaylistId, selectedTrackId }) => {
+store.subscribe(({ selectedPlaylistId, selectedTrackId, playlists, playlist2tracks }) => {
 	if (selectedPlaylistId !== prevSelectedPlaylistId) {
-		store.update((store) => ({ ...store, playlistTracks: [] }));
-		// udate the songs for a selected playlsit when the id is updated
 		prevSelectedPlaylistId = selectedPlaylistId;
-		updatePlaylistTracks(selectedPlaylistId);
+		if (selectedPlaylistId !== null) {
+			const playlistTracks = playlist2tracks[selectedPlaylistId];
+			if (playlistTracks) {
+				store.update((store) => ({ ...store, playlistTracks }));
+			} else {
+				store.update((store) => ({ ...store, playlistTracks: [] }));
+				updatePlaylistTracks(selectedPlaylistId);
+			}
+		} else {
+			store.update((store) => ({ ...store, playlistTracks: [] }));
+		}
 		return;
 	} else if (selectedTrackId !== prevSelectedTrackId) {
 		store.update((store) => ({ ...store, trackFeatures: null }));
-		// udate the songs for a selected playlsit when the id is updated
 		prevSelectedTrackId = selectedTrackId;
 		updateTrackFeatures(selectedTrackId);
 		return;
@@ -47,8 +56,18 @@ store.subscribe(({ selectedPlaylistId, selectedTrackId }) => {
 });
 
 async function updatePlaylistTracks(id: string | null) {
-	const playlistTracks = await getPlaylistTracks(id);
-	store.update((store) => ({ ...store, playlistTracks: playlistTracks }));
+	if (id) {
+		const playlistTracks = await getPlaylistTracks(id);
+		store.update((store) => {
+			const newPlaylists2Track = { ...store.playlist2tracks };
+			newPlaylists2Track[id] = playlistTracks;
+			return {
+				...store,
+				playlistTracks: playlistTracks,
+				playlist2tracks: newPlaylists2Track
+			};
+		});
+	}
 }
 
 async function updateTrackFeatures(id: string | null) {
@@ -68,7 +87,6 @@ export function getStore() {
 	if (typeof localStorage !== 'undefined') {
 		loocalStorageSyncedAtStart = true;
 		const savedStore = localStorage.getItem('spotifyStore');
-		console.log('got store', savedStore);
 		if (savedStore !== null) {
 			store.update((store) => ({ ...store, ...JSON.parse(savedStore as any) }));
 		}

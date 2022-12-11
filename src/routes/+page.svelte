@@ -2,7 +2,7 @@
 	import { getAccessToken, resetLocalStorage, setAccessToken } from '$lib/persistence';
 	import Playlists from '$lib/playlists.svelte';
 	import Songs from '$lib/songs.svelte';
-	import { auth, getAPI, getMe } from '$lib/spotifyAuthURL';
+	import { auth, getAPI, getMe } from '$lib/spotifyAPI';
 	import spotifyStore, { getStore } from '$lib/spotifyStore';
 	import TrackInfo from '$lib/trackInfo.svelte';
 
@@ -25,7 +25,6 @@
 				});
 			let url = window.location.href;
 			url = url.split('#')[0];
-			console.log(url);
 			// Use the replaceState method to modify the current URL
 			window.history.replaceState({}, '', url);
 			if (afterHashtagParams.length) {

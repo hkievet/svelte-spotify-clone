@@ -1,13 +1,7 @@
 <script lang="ts">
-	import type { TrackFeatures } from './types';
+	import type { FeatureCollection, TrackFeatures } from './types';
 
-	export let features: TrackFeatures;
-
-	const colors = {
-		acousticness: 'bg-red-500'
-	};
-	const size: number = 0.8;
-	const size2: number = 0.6;
+	export let features: FeatureCollection;
 </script>
 
 <div class="flex flex-row h-8 mr-5 content-end">

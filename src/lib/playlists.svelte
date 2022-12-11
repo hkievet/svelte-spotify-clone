@@ -1,14 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getPlaylists } from './spotifyAuthURL';
+	import { getPlaylists } from './spotifyAPI';
 	import spotifyStore from '$lib/spotifyStore';
 	import AccountBadge from './accountBadge.svelte';
 
 	let playlists: any[] = [];
 
 	onMount(async () => {
-		playlists = await getPlaylists();
-		spotifyStore.set({ ...$spotifyStore, playlists });
+		if (!$spotifyStore.playlists.length) {
+			playlists = await getPlaylists();
+			spotifyStore.set({ ...$spotifyStore, playlists });
+		}
 	});
 </script>
 

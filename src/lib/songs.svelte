@@ -1,13 +1,16 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
-	import { getPlaylists, getPlaylistTracks, playSong } from './spotifyAuthURL';
+	import { getPlaylists, getPlaylistTracks, playSong } from './spotifyAPI';
 	import spotifyStore from '$lib/spotifyStore';
 	import TrackFeatures from './trackFeatures.svelte';
+	import { calculateAverageFeatures } from './calculateAverageFeatures';
 
 	let isLoaded = false;
 	let playlists: any[] = [];
 
 	$: playlist = getSelectedPlaylist($spotifyStore.selectedPlaylistId);
+
+	$: trackFeatures = calculateAverageFeatures($spotifyStore?.playlistTracks.map((t) => t.features));
 
 	function getSelectedPlaylist(id: string | null) {
 		const result = $spotifyStore.playlists.find((playlist) => {
@@ -20,6 +23,7 @@
 {#if $spotifyStore.playlistTracks && playlist}
 	<div class="max-w-lg w-full h-screen max-h-screen overflow-y-scroll">
 		<h1>{playlist.name}</h1>
+		<TrackFeatures features={trackFeatures} />
 		{#each $spotifyStore.playlistTracks as track}
 			<button
 				class="flex flex-row justify-between"

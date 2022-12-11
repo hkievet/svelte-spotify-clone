@@ -26,7 +26,6 @@ export function auth() {
 	// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 	// @ts-ignore
 	const authorizeURL = spotifyApi.createAuthorizeURL(scopes, state, showDialog, responseType);
-	console.log(authorizeURL);
 
 	return authorizeURL;
 }
@@ -60,7 +59,6 @@ export async function getMe(spotifyApi: SpotifyWebApi) {
 export async function getPlaylists() {
 	const api = getAPIOrFail();
 	const paginate = async (offset = 0, playlists: any[] = []): Promise<any[]> => {
-		console.log(offset);
 		const data = await api.getUserPlaylists({ limit: 20, offset: offset });
 		playlists.push(...data.body['items']);
 		if (offset + 20 < data.body['total']) {
@@ -78,19 +76,22 @@ export async function getPlaylistTracks(id: string | null): Promise<Track[]> {
 	const api = getAPIOrFail();
 	const paginate = async (offset = 0, songs: any[] = []): Promise<any[]> => {
 		const data = await api.getPlaylistTracks(id, { limit: 20, offset: offset });
-		songs.push(...data.body['items']);
+		const _songs = data.body['items'];
+		const trackIds = _songs.map((t: any) => t.track.id);
+		const features = await api.getAudioFeaturesForTracks(trackIds);
+		_songs.map((t: any, i) => {
+			t.features = features.body['audio_features'][i];
+		});
+
+		songs.push(..._songs);
+
 		if (offset + 20 < data.body['total']) {
 			return paginate(offset + 20, songs);
 		}
 
-		// Stitch together the audio features onto each track.
-		const trackIds = songs.map((t) => t.track.id);
-		const features = await api.getAudioFeaturesForTracks(trackIds);
-		songs.map((t, i) => {
-			t.features = features.body['audio_features'][i];
-		});
-
 		return songs;
+
+		// Stitch together the audio features onto each track.
 	};
 
 	return paginate();

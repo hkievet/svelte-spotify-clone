@@ -1,30 +1,31 @@
 <script lang="ts">
 	import spotifyStore from '$lib/spotifyStore';
-	import { playSong } from './spotifyAuthURL';
+	// import { getSongLyrics } from './geniusApi';
+	import { playSong } from './spotifyAPI';
 
 	$: track = getSelectedTrack($spotifyStore.selectedTrackId);
 
+	// $: lyrics = getSongLyrics(track?.track?.artists[0]?.name ?? '', track?.track.name ?? '');
+
 	function getSelectedTrack(id: string | null) {
 		const result = $spotifyStore.playlistTracks.find((track) => {
-			// console.log(track.track.id);
-			// console.log(id);
 			return track.track.id === id;
 		});
-		console.log(result);
 		return result;
 	}
 </script>
 
 {#if $spotifyStore.trackFeatures && $spotifyStore.selectedTrackId && !!track}
 	<div>
-		<p>Track... {track.track.name}.</p>
+		<h1>{track.track.name}</h1>
 		<p class="acoustic">Accousticness: {$spotifyStore.trackFeatures.acousticness}</p>
 		<p class="danceability">Danceability: {$spotifyStore.trackFeatures.danceability}</p>
 		<p class="speechiness">Speechiness: {$spotifyStore.trackFeatures.speechiness}</p>
-		<p class="energy">energy: {$spotifyStore.trackFeatures.energy}</p>
-		<p class="instrumentalness">instrumentalness: {$spotifyStore.trackFeatures.instrumentalness}</p>
-		<p class="liveness">liveness: {$spotifyStore.trackFeatures.liveness}</p>
-		<p class="valence">valence: {$spotifyStore.trackFeatures.valence}</p>
+		<p class="energy">Energy: {$spotifyStore.trackFeatures.energy}</p>
+		<p class="instrumentalness">Instrumentalness: {$spotifyStore.trackFeatures.instrumentalness}</p>
+		<p class="liveness">Liveness: {$spotifyStore.trackFeatures.liveness}</p>
+		<p class="valence">Valence: {$spotifyStore.trackFeatures.valence}</p>
+		<!-- <p>{lyrics}</p> -->
 		<button
 			on:click={() => {
 				if (track) {
