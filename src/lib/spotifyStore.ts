@@ -47,7 +47,7 @@ store.subscribe(({ selectedPlaylistId, selectedTrackId, playlists, playlist2trac
 			store.update((store) => ({ ...store, playlistTracks: [] }));
 		}
 		return;
-	} else if (selectedTrackId !== prevSelectedTrackId) {
+	} else if (selectedTrackId !== prevSelectedTrackId && selectedPlaylistId) {
 		store.update((store) => ({ ...store, trackFeatures: null }));
 		prevSelectedTrackId = selectedTrackId;
 		updateTrackFeatures(selectedTrackId);
@@ -57,13 +57,14 @@ store.subscribe(({ selectedPlaylistId, selectedTrackId, playlists, playlist2trac
 
 async function updatePlaylistTracks(id: string | null) {
 	if (id) {
-		const playlistTracks = await getPlaylistTracks(id);
+		await getPlaylistTracks(id);
+		// cache the dealio
 		store.update((store) => {
 			const newPlaylists2Track = { ...store.playlist2tracks };
-			newPlaylists2Track[id] = playlistTracks;
+			console.log(store.playlistTracks);
+			newPlaylists2Track[id] = store.playlistTracks;
 			return {
 				...store,
-				playlistTracks: playlistTracks,
 				playlist2tracks: newPlaylists2Track
 			};
 		});

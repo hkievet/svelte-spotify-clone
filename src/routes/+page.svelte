@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { getAccessToken, resetLocalStorage, setAccessToken } from '$lib/persistence';
+	import PlayBar from '$lib/playBar.svelte';
 	import Playlists from '$lib/playlists.svelte';
 	import Songs from '$lib/songs.svelte';
 	import { auth, getAPI, getMe } from '$lib/spotifyAPI';
@@ -61,6 +62,7 @@
 				<Songs />
 				<div>
 					<TrackInfo />
+					<PlayBar />
 				</div>
 			</div>
 		{:else}

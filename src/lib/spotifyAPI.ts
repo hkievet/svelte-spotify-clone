@@ -3,14 +3,21 @@ import SpotifyWebApi from 'spotify-web-api-node';
 // @ts-ignore
 import SpotifyWebApiServer from 'spotify-web-api-node/src/server-methods';
 import { getAccessToken } from './persistence';
-import type { Track, TrackFeatures } from './types';
+import store from './spotifyStore';
+import type { TrackFeatures } from './types';
 
 (SpotifyWebApi as unknown as { _addMethods: (fncs: unknown) => void })._addMethods(
 	SpotifyWebApiServer
 );
 
 export function auth() {
-	const scopes = ['user-read-private', 'user-read-email', 'user-modify-playback-state'];
+	//https://developer.spotify.com/documentation/general/guides/authorization/scopes/
+	const scopes = [
+		'user-read-private',
+		'user-read-email',
+		'user-modify-playback-state',
+		'user-read-playback-state'
+	];
 	const redirectUri = 'http://localhost:5173/';
 	const clientId = '3e64e205a53b46ea9735eb446a9c97f6';
 	const state = 'some-state-of-my-choice';
@@ -69,12 +76,12 @@ export async function getPlaylists() {
 	return paginate();
 }
 
-export async function getPlaylistTracks(id: string | null): Promise<Track[]> {
+export async function getPlaylistTracks(id: string | null): Promise<void> {
 	if (id === null) {
-		return [];
+		return;
 	}
 	const api = getAPIOrFail();
-	const paginate = async (offset = 0, songs: any[] = []): Promise<any[]> => {
+	const paginate = async (offset = 0): Promise<void> => {
 		const data = await api.getPlaylistTracks(id, { limit: 20, offset: offset });
 		const _songs = data.body['items'];
 		const trackIds = _songs.map((t: any) => t.track.id);
@@ -83,15 +90,18 @@ export async function getPlaylistTracks(id: string | null): Promise<Track[]> {
 			t.features = features.body['audio_features'][i];
 		});
 
-		songs.push(..._songs);
+		console.log(offset);
+		store.update((store) => {
+			console.log('on update');
+			const newTracks = [...store.playlistTracks];
+			console.log(newTracks);
+			newTracks.push(...(_songs as any));
+			return { ...store, playlistTracks: newTracks };
+		});
 
 		if (offset + 20 < data.body['total']) {
-			return paginate(offset + 20, songs);
+			return paginate(offset + 20);
 		}
-
-		return songs;
-
-		// Stitch together the audio features onto each track.
 	};
 
 	return paginate();
