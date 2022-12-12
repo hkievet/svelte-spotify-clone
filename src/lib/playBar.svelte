@@ -48,7 +48,7 @@
 	onMount(async () => {
 		updatePlayerStatus();
 		setInterval(() => {
-			if (elapsedDuration) {
+			if (elapsedDuration && isPlaying) {
 				elapsedDuration += 500;
 			}
 			if (timeLastRetrieved + 5000 <= new Date().getTime()) updatePlayerStatus();
