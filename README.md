@@ -3,6 +3,8 @@
 
 Make client and get public/secret at [Spotify Developer Dashboard](https://developer.spotify.com/dashboard/applications).
 
+Set redirect uri to `http://localhost:5173/`.
+
 1. copy env.template to .env, fill it out (see above)
 1. `npm install`
 1. `npm dev`...
