@@ -38,9 +38,7 @@
 			</button>
 		{/each}
 	</div>
-{:else}
-	<p>Loading Playlists</p>
-{/if}
+{:else}{/if}
 
 <style lang="postcss">
 	button {
